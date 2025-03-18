@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Challenge</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+            background-color: rgb(0, 51, 41); /* Set background color */
+            color: #f0f0f0; /* Light gray text color for better contrast */
+        }
+        .overlay {
+            background: linear-gradient(to bottom right, rgba(255, 255, 255, 0.45), rgba(211, 211, 211, 0.7)); /* White to light gray gradient overlay */
+            padding: 40px; /* Padding around the overlay */
+            border-radius: 8px; /* Rounded corners */
+            max-width: 600px; /* Optional: Set a max width for the overlay */
+            margin: auto; /* Center the overlay */
+            text-align: left; /* Left align text within the overlay */
+        }
+        h1 {
+            font-size: 32px; /* Increased size for main heading */
+            margin-bottom: 10px; /* Space below the heading */
+        }
+        h2 {
+            font-size: 20px; /* Increase size for subheading */
+            margin: 20px 0; /* Space above and below the subheading */
+            text-align: center; /* Center the heading */
+        }
+        .info-text {
+            font-size: 16px; /* Increase size for info text */
+            margin-top: 10px; /* Space above the text */
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .slot {
+            border: 1px solid #ccc;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            background-color: rgba(200, 255, 200, 0.8); /* Adjusted background color */
+            color: #fff; /* Updated text color to white */
+        }
+        .booked {
+            background-color: red;
+            color: white;
+            pointer-events: none;
+        }
+        .available {
+            background-color: rgba(150, 255, 150, 0.8); /* Slightly darker green */
+            color: #fff; /* White text color for better contrast */
+        }
+        .available .vacancy-count {
+            font-size: 13px; /* Smaller font size for available vacancies */
+        }
+        .available .time {
+            font-weight: bold; /* Bold text for time */
+        }
+        form {
+            display: flex;
+            flex-direction: column; /* Stack elements vertically */
+            align-items: flex-start; /* Align items to the left */
+            max-width: 500px; /* Set a max width for the form */
+            margin: 0 auto; /* Center the form */
+        }
+        form div {
+            margin-bottom: 15px; /* Add space between fields */
+            width: 100%; /* Full width for fields */
+            display: flex; /* Use flexbox for alignment */
+            align-items: center; /* Align items vertically */
+        }
+        label {
+            width: 150px; /* Fixed width for labels */
+            margin-right: 10px; /* Space between label and input */
+            text-align: left; /* Align label text to the left */
+            font-weight: bold; /* Make labels bold */
+        }
+        input, select {
+            flex: 1; /* Allow inputs to take the remaining space */
+            min-width: 150px; /* Set a minimum width for all inputs */
+            max-width: 100%; /* Allow inputs to fill the container */
+            padding: 8px; /* Add padding inside inputs */
+            font-size: 16px; /* Increase size for input text */
+            border: 1px solid #ccc; /* Add border for inputs */
+            border-radius: 4px; /* Rounded corners */
+        }
+        .email-container {
+            display: flex; /* Align email parts in a row */
+            flex: 1; /* Make email container take full width */
+            justify-content: flex-start; /* Align email parts to the left */
+        }
+        .email-name {
+            flex: 3; /* Allow name input to take more space */
+            margin-right: 10px; /* Space between name and domain */
+            color: lightgray; /* Initial color for placeholder in email */
+        }
+        .email-name.active {
+            color: black; /* Change to black when input is active */
+        }
+        .email-domain {
+            flex: 1; /* Wider dropdown */
+            min-width: 150px; /* Set a minimum width for the domain dropdown */
+            color: black; /* Black color for the email domain dropdown */
+        }
+        .other-domain {
+            display: none; /* Initially hidden */
+            flex: 1; /* Take full width */
+            color: lightgray; /* Initial color for "@" */
+        }
+        .other-domain.active {
+            color: black; /* Change to black when input is active */
+        }
+        .green-text {
+            color: #00FF00; /* Set color to green */
+            font-weight: bold; /* Make the green text bold */
+        }
+        .button-container {
+            display: flex; /* Use flexbox for centering */
+            justify-content: center; /* Center the button */
+            width: 100%; /* Full width for the container */
+            margin-top: 20px; /* Space above the button */
+        }
+        button {
+            width: 100%; /* Make the button full width */
+            height: 60px; /* Increase height of the button */
+            font-weight: bold; /* Make the text bold */
+            background: linear-gradient(to bottom right, #7d7d7d, #a9a9a9); /* Gray gradient for the button */
+            color: white; /* Button text color */
+            border: none; /* Remove default border */
+            border-radius: 5px; /* Rounded corners for the button */
+            cursor: pointer; /* Pointer cursor on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add shadow for 3D effect */
+            transition: all 0.3s ease; /* Smooth transition for hover effects */
+            font-size: 16px; /* Increase button text size */
+            text-transform: uppercase; /* Make button text uppercase */
+        }
+        button:hover {
+            background: linear-gradient(to bottom right, #6f6f6f, #9e9e9e); /* Darker gray on hover */
+            transform: translateY(-2px); /* Lift effect on hover */
+        }
+        /* Placeholder color for select */
+        select option:disabled {
+            color: #999; /* Gray color for disabled option */
+        }
+        select {
+            color: #999; /* Gray color for the select placeholder */
+        }
+        /* Black color for other options in the department dropdown */
+        #department option {
+            color: black; /* Default color for options */
+        }
+        #department option[disabled] {
+            color: #999; /* Gray color for the disabled option */
+        }
+        /* Black color for optgroup labels */
+        optgroup {
+            color: black; /* Black color for optgroup labels */
+        }
+        /* Black color for level dropdown */
+        #level {
+            color: black; /* Black color for level dropdown text */
+        }
+    </style>
+</head>
+<body>
+
+<div class="overlay">
+    <h1>Workout Challenge</h1>
+    <p class="info-text">Please select 1 available time slot <span class="green-text">(Green)</span> from below.</p>
+    <div class="calendar" id="calendar"></div>
+
+    <h2>Registration</h2> <!-- Centered heading -->
+    <form id="registrationForm">
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+        </div>
+        <div class="email-container">
+            <label for="email">Email:</label>
+            <input type="text" id="email-name" class="email-name" placeholder="Your Email Address" required 
+                   onfocus="this.classList.add('active')" 
+                   onblur="if(this.value === '') this.classList.remove('active')">
+            <select id="email-domain" class="email-domain" required onchange="toggleOtherDomain()">
+                <option value="@chinachemgroup.com">@chinachemgroup.com</option>
+                <option value="@ccg-ps.com">@ccg-ps.com</option>
+                <option value="@ninahotelgroup.com">@ninahotelgroup.com</option>
+                <option value="other">Other</option>
+            </select>
+            <input type="text" id="other-domain" class="other-domain" placeholder="Please specify" value="@" 
+                   onfocus="this.classList.add('active')" 
+                   onblur="if(this.value === '@') this.classList.remove('active')" 
+                   oninput="this.classList.add('active')">
+        </div>
+        <div>
+            <label for="department">Department:</label>
+            <select id="department" required>
+                <option disabled selected>Select Your Department</option>
+                <optgroup label="-Asset Management-">
+                    <option value="Asset Management">Asset Management</option>
+                    <option value="Customer Relations">Customer Relations</option>
+                    <option value="Leasing">Leasing</option>
+                </optgroup>
+                <optgroup label="-BIBM-">
+                    <option value="BIBM">BIBM</option>
+                    <option value="Corporate Communications">Corporate Communications</option>
+                    <option value="Corporate Social Responsibility Projects">Corporate Social Responsibility Projects</option>
+                    <option value="CRM">CRM</option>
+                    <option value="ESG">ESG</option>
+                </optgroup>
+                <optgroup label="-CCE-">
+                    <option value="CCE">CCE</option>
+                </optgroup>
+                <optgroup label="-CCG Healthcare-">
+                    <option value="CCG Healthcare">CCG Healthcare</option>
+                </optgroup>
+                <optgroup label="-CCG Healthcare Services-">
+                    <option value="CCG Healthcare Services">CCG Healthcare Services</option>
+                </optgroup>
+                <optgroup label="-CCG-PS-">
+                    <option value="CCG-PS">CCG-PS</option>
+                </optgroup>
+                <optgroup label="-CEO Office-">
+                    <option value="CEO Office">CEO Office</option>
+                </optgroup>
+                <optgroup label="-Corporate Development-">
+                    <option value="Corporate Development">Corporate Development</option>
+                    <option value="Corporate Investment">Corporate Investment</option>
+                </optgroup>
+                <optgroup label="-Development-">
+                    <option value="Project">Project</option>
+                    <option value="Real Estate Investment">Real Estate Investment</option>
+                    <option value="Sales">Sales</option>
+                </optgroup>
+                <optgroup label="-Finance-">
+                    <option value="Corporate Finance and Treasury">Corporate Finance and Treasury</option>
+                    <option value="Finance">Finance</option>
+                    <option value="Financial Planning and Control">Financial Planning and Control</option>
+                    <option value="Investment">Investment</option>
+                </optgroup>
+                <optgroup label="-Nina Hospitality-">
+                    <option value="Nina Hospitality">Nina Hospitality</option>
+                </optgroup>
+                <optgroup label="-Internal Audit-">
+                    <option value="Internal Audit">Internal Audit</option>
+                </optgroup>
+                <optgroup label="-Operation-">
+                    <option value="Central Procurement">Central Procurement</option>
+                    <option value="Company Secretarial">Company Secretarial</option>
+                    <option value="Human Resources">Human Resources</option>
+                    <option value="Information Technology and Solutions">Information Technology and Solutions</option>
+                    <option value="Insurance">Insurance</option>
+                    <option value="Internal Control">Internal Control</option>
+                    <option value="Legal">Legal</option>
+                    <option value="Operation">Operation</option>
+                    <option value="Prop Tech">Prop Tech</option>
+                    <option value="Workplace Services">Workplace Services</option>
+                </optgroup>
+            </select>
+        </div>
+        <div>
+            <label for="level">Level:</label>
+            <select id="level" class="skill-level" required>
+                <option value="novice">Novice</option>
+                <option value="advanced">Advanced</option>
+            </select>
+        </div>
+        <div class="time-slot-label">
+            <label for="time">Selected Time Slot:</label>
+            <input type="text" id="time" readonly required>
+        </div>
+        <div class="button-container">
+            <button type="submit">Register</button> <!-- Centered button -->
+        </div>
+    </form>
+</div>
+
+<script>
+    const calendarElement = document.getElementById('calendar');
+    const timeInput = document.getElementById('time');
+    const registrationForm = document.getElementById('registrationForm');
+    const otherDomainInput = document.getElementById('other-domain');
+
+    // Define slots with a quota for each
+    const slots = {};
+    const startTime = new Date("2023-01-01T14:30:00");
+    const endTime = new Date("2023-01-01T17:30:00");
+
+    // Create time slots
+    for (let time = startTime; time <= endTime; time.setMinutes(time.getMinutes() + 15)) {
+        const timeString = time.toTimeString().slice(0, 5); // Format as HH:MM
+        slots[timeString] = { booked: 0, quota: 20 }; // 20 slots available
+    }
+
+    function createCalendar() {
+        calendarElement.innerHTML = ''; // Clear previous slots
+        for (const time in slots) {
+            const { booked, quota } = slots[time];
+            const availableSlots = quota - booked;
+
+            const slotElement = document.createElement('div');
+            slotElement.className = 'slot ' + (availableSlots > 0 ? 'available' : 'booked');
+            slotElement.innerHTML = `<span class="time">${time}</span><br><span class="vacancy-count">Available: ${availableSlots}</span>`; // Bold time
+            slotElement.onclick = () => selectTime(time);
+            calendarElement.appendChild(slotElement);
+        }
+    }
+
+    function selectTime(time) {
+        const { booked, quota } = slots[time];
+        if (booked >= quota) {
+            alert('This time slot is fully booked.');
+        } else {
+            timeInput.value = time;
+        }
+    }
+
+    function toggleOtherDomain() {
+        if (document.getElementById('email-domain').value === 'other') {
+            otherDomainInput.style.display = 'block'; // Show the input for 'Other'
+            otherDomainInput.value = '@'; // Set default value to '@'
+            otherDomainInput.classList.remove('active'); // Ensure it starts with light gray
+        } else {
+            otherDomainInput.style.display = 'none'; // Hide it otherwise
+            otherDomainInput.value = ''; // Clear the input value
+        }
+    }
+
+    registrationForm.onsubmit = (event) => {
+        event.preventDefault();
+        const name = document.getElementById('name').value;
+        const emailName = document.getElementById('email-name').value;
+        const emailDomain = document.getElementById('email-domain').value === 'other' ? otherDomainInput.value : document.getElementById('email-domain').value;
+        const email = emailName + emailDomain; // Combine name and domain
+        const department = document.getElementById('department').value;
+        const level = document.getElementById('level').value;
+        const selectedTime = timeInput.value;
+
+        // Check if the email is already registered (in-memory check for this demo)
+        const registeredUsers = [];
+        if (registeredUsers.some(user => user.email === email)) {
+            alert('This email is already registered.');
+            return;
+        }
+
+        // Validate email domain
+        if (!email.endsWith('@chinachemgroup.com') && !email.endsWith('@ccg-ps.com') && !email.endsWith('@ninahotelgroup.com')) {
+            alert('Registration is only available for users with an email address ending in @chinachemgroup.com, @ccg-ps.com, or @ninahotelgroup.com');
+            return;
+        }
+
+        const { booked, quota } = slots[selectedTime];
+        if (booked < quota) {
+            slots[selectedTime].booked++; // Increment booked count
+            registeredUsers.push({ name, email, department, level, time: selectedTime }); // Add user to registeredUsers
+            alert(`Thank you ${name}, you have successfully registered for ${selectedTime}.\nDepartment: ${department}\nLevel: ${level}`);
+            createCalendar(); // Refresh the calendar
+        } else {
+            alert('This time slot is no longer available.');
+        }
+    };
+
+    createCalendar();
+</script>
+
+</body>
+</html>
